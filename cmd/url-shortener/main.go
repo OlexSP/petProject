@@ -4,6 +4,7 @@ import (
 	"golang.org/x/exp/slog"
 	"os"
 	"petProject/internal/config"
+	"petProject/internal/lib/logger/sl"
 	"petProject/internal/storage/sqlite"
 )
 
@@ -26,9 +27,11 @@ func main() {
 
 	storage, err := sqlite.New(cfg.StoragePath)
 	if err != nil {
-		log.Error("cannot create storage", "error", err)
+		log.Error("failed to create storage", sl.Err(err))
 		os.Exit(1)
 	}
+
+	_ = storage
 
 	// TODO: inti router: chi, "chi reder"
 
