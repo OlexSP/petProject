@@ -4,6 +4,7 @@ import (
 	"golang.org/x/exp/slog"
 	"os"
 	"petProject/internal/config"
+	"petProject/internal/storage/sqlite"
 )
 
 const (
@@ -18,9 +19,16 @@ func main() {
 
 	log := setupLogger(cfg.Env)
 
-	log.Info("starting url-shortener")
+	// log = log.With("env", cfg.Env) // adds env parameter to all logs
 
-	// TODO: inti storage: sqlite
+	log.Info("starting url-shortener", "env", cfg.Env)
+	log.Debug("debug mode is on")
+
+	storage, err := sqlite.New(cfg.StoragePath)
+	if err != nil {
+		log.Error("cannot create storage", "error", err)
+		os.Exit(1)
+	}
 
 	// TODO: inti router: chi, "chi reder"
 
