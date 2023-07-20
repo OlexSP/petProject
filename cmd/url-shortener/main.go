@@ -1,6 +1,8 @@
 package main
 
 import (
+	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
 	"golang.org/x/exp/slog"
 	"os"
 	"petProject/internal/config"
@@ -31,7 +33,13 @@ func main() {
 		os.Exit(1)
 	}
 
-	// TODO: inti router: chi, "chi reder"
+	// TODO: inti router: chi, "chi reader"
+
+	router := chi.NewRouter()
+
+	// middleware
+	router.Use(middleware.RequestID)
+	router.Use(middleware.Logger)
 
 	// TODO: run server
 }
