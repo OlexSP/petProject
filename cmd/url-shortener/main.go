@@ -6,6 +6,7 @@ import (
 	"golang.org/x/exp/slog"
 	"os"
 	"petProject/internal/config"
+	mwLogger "petProject/internal/http-server/middleware/logger"
 	"petProject/internal/lib/logger/sl"
 	"petProject/internal/storage/sqlite"
 )
@@ -40,6 +41,9 @@ func main() {
 	// middleware
 	router.Use(middleware.RequestID)
 	router.Use(middleware.Logger)
+	router.Use(mwLogger.New(log))
+	router.Use(middleware.Recoverer)
+	router.Use(middleware.URLFormat)
 
 	// TODO: run server
 }
