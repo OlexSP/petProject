@@ -7,6 +7,7 @@ import (
 	"os"
 	"petProject/internal/config"
 	mwLogger "petProject/internal/http-server/middleware/logger"
+	"petProject/internal/lib/logger/handlers/slogpretty"
 	"petProject/internal/lib/logger/sl"
 	"petProject/internal/storage/sqlite"
 )
@@ -34,6 +35,7 @@ func main() {
 		os.Exit(1)
 	}
 
+	_ = storage
 	// TODO: inti router: chi, "chi reader"
 
 	router := chi.NewRouter()
@@ -53,9 +55,7 @@ func setupLogger(env string) *slog.Logger {
 
 	switch env {
 	case envLocal:
-		log = slog.New(
-			slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelDebug}),
-		)
+		log = setupPrettyLogger()
 	case envDev:
 		log = slog.New(
 			slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelDebug}),
@@ -66,4 +66,16 @@ func setupLogger(env string) *slog.Logger {
 		)
 	}
 	return log
+}
+
+func setupPrettyLogger() *slog.Logger {
+	opts := slogpretty.PrettyHandlerOptions{
+		SlogOpts: &slog.HandlerOptions{
+			Level: slog.LevelDebug,
+		},
+	}
+
+	handler := opts.NewPrettyHandler(os.Stdout)
+
+	return slog.New(handler)
 }
