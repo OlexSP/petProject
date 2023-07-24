@@ -8,6 +8,7 @@ import (
 	"net/http"
 	resp "petProject/internal/lib/api/response"
 	"petProject/internal/lib/logger/sl"
+	"petProject/internal/lib/random"
 )
 
 // Request & Response JTOs
@@ -20,6 +21,9 @@ type Response struct {
 	resp.Response
 	Alias string `json:"alias,omitempty"`
 }
+
+// TODO: move to config if needed
+const aliasLength = 6
 
 type URLSaver interface {
 	Save(urlToSave string, alias string) (int64, error)
@@ -48,11 +52,18 @@ func New(log *slog.Logger, urlSaver URLSaver) http.HandlerFunc {
 		log.Info("request body decoded", slog.Any("request", req))
 
 		if err := validator.New().Struct(req); err != nil {
+			validateErr := err.(validator.ValidationErrors)
+
 			log.Error("invalid request", sl.Err(err))
 
-			render.JSON(w, r, resp.Error("failed to validate request"))
+			render.JSON(w, r, resp.ValidationError(validateErr))
 
 			return
+		}
+
+		alias := req.Alias
+		if alias == "" {
+			alias = random.NewRandomString(aliasLength)
 		}
 	}
 }
