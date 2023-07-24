@@ -10,7 +10,7 @@ import (
 	"golang.org/x/exp/slog"
 )
 
-// log formatting
+// log formatting for local environment
 
 type PrettyHandlerOptions struct {
 	SlogOpts *slog.HandlerOptions

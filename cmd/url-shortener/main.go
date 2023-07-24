@@ -28,6 +28,7 @@ func main() {
 
 	log.Info("starting url-shortener", "env", cfg.Env)
 	log.Debug("debug mode is on")
+	log.Error("error mode is on")
 
 	storage, err := sqlite.New(cfg.StoragePath)
 	if err != nil {
