@@ -6,6 +6,10 @@ import (
 )
 
 func NewRandomString(size int) string {
+	if size < 1 {
+		size = 1
+	}
+
 	rnd := rand.New(rand.NewSource(time.Now().UnixNano()))
 
 	chars := []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789")

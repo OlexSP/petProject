@@ -1,6 +1,7 @@
 package save
 
 import (
+	"errors"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/render"
 	"github.com/go-playground/validator/v10"
@@ -9,6 +10,7 @@ import (
 	resp "petProject/internal/lib/api/response"
 	"petProject/internal/lib/logger/sl"
 	"petProject/internal/lib/random"
+	"petProject/internal/storage"
 )
 
 // Request & Response JTOs
@@ -65,5 +67,22 @@ func New(log *slog.Logger, urlSaver URLSaver) http.HandlerFunc {
 		if alias == "" {
 			alias = random.NewRandomString(aliasLength)
 		}
+
+		// TODO: alias exist check
+
+		id, err := urlSaver.Save(req.URL, alias)
+		if errors.Is(err, storage.ErrURLExists) {
+			log.Info("url already exists", slog.String("url", req.URL))
+
+			render.JSON(w, r, resp.Error("url already exists"))
+
+			return
+		}
+
+		if err != nil {
+			log.Error("failed to save url", sl.Err(err))
+		}
+
+		return
 	}
 }
