@@ -36,12 +36,29 @@ func TestNewRandomString(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			str1 := NewRandomString(tt.size)
 			str2 := NewRandomString(tt.size)
-
+			// Check that generated strings of the specified length
 			assert.Len(t, str1, tt.size)
 			assert.Len(t, str2, tt.size)
 
 			// Check that two generated strings are different
 			assert.NotEqual(t, str1, str2)
+
+			// Check that all characters are allowed
+			for _, char := range str1 {
+				if !isAllowedCharacter(char) {
+					t.Errorf("Random string contains invalid character: %c", char)
+				}
+			}
 		})
 	}
+}
+
+func isAllowedCharacter(char rune) bool {
+	allowedChars := "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+	for _, allowedChar := range allowedChars {
+		if char == allowedChar {
+			return true
+		}
+	}
+	return false
 }
