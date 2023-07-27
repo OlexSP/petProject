@@ -19,5 +19,14 @@
 
 # Go workspace file
 go.work
+
+#.idea
 .idea
+
+# storage
 storage/storage.db
+
+# http test files
+save_test.http
+*.http
+

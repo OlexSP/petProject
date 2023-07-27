@@ -4,8 +4,10 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"golang.org/x/exp/slog"
+	"net/http"
 	"os"
 	"petProject/internal/config"
+	"petProject/internal/http-server/handlers/url/save"
 	mwLogger "petProject/internal/http-server/middleware/logger"
 	"petProject/internal/lib/logger/handlers/slogpretty"
 	"petProject/internal/lib/logger/sl"
@@ -36,9 +38,6 @@ func main() {
 		os.Exit(1)
 	}
 
-	_ = storage
-	// TODO: inti router: chi, "chi reader"
-
 	router := chi.NewRouter()
 
 	// middleware
@@ -48,7 +47,23 @@ func main() {
 	router.Use(middleware.Recoverer)
 	router.Use(middleware.URLFormat)
 
-	// TODO: run server
+	router.Post("/url", save.New(log, storage))
+
+	log.Info("starting server", slog.String("address", cfg.Address))
+
+	srv := &http.Server{
+		Addr:         cfg.Address,
+		Handler:      router,
+		ReadTimeout:  cfg.HTTPServer.Timeout,
+		WriteTimeout: cfg.HTTPServer.Timeout,
+		IdleTimeout:  cfg.HTTPServer.IdleTimeout,
+	}
+
+	if err := srv.ListenAndServe(); err != nil {
+		log.Error("failed to start server", sl.Err(err))
+		os.Exit(1)
+	}
+
 }
 
 func setupLogger(env string) *slog.Logger {
