@@ -76,7 +76,7 @@ func TestSaveHandler(t *testing.T) {
 			req, err := http.NewRequest(http.MethodPost, "/save", bytes.NewReader([]byte(input)))
 			require.NoError(t, err) // could be assert.NoError() which goes on the test
 
-			rr := httptest.NewRecorder() // http response recorder
+			rr := httptest.NewRecorder() // http test response recorder
 			handler.ServeHTTP(rr, req)   // get the response
 
 			require.Equal(t, rr.Code, http.StatusOK)

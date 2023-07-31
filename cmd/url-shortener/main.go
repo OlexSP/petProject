@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"petProject/internal/config"
+	"petProject/internal/http-server/handlers/redirect"
 	"petProject/internal/http-server/handlers/url/save"
 	mwLogger "petProject/internal/http-server/middleware/logger"
 	"petProject/internal/lib/logger/handlers/slogpretty"
@@ -28,7 +29,11 @@ func main() {
 
 	// log = log.With("env", cfg.Env) // adds env parameter to all logs
 
-	log.Info("starting url-shortener", "env", cfg.Env)
+	log.Info(
+		"starting url-shortener",
+		"env", cfg.Env,
+		"version", "123",
+	)
 	log.Debug("debug mode is on")
 	log.Error("error mode is on")
 
@@ -47,7 +52,8 @@ func main() {
 	router.Use(middleware.Recoverer)
 	router.Use(middleware.URLFormat)
 
-	router.Post("/url", save.New(log, storage))
+	router.Post("/url/save", save.New(log, storage))
+	router.Get("/{alias}", redirect.New(log, storage))
 
 	log.Info("starting server", slog.String("address", cfg.Address))
 
