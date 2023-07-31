@@ -38,7 +38,7 @@ func TestSaveHandler(t *testing.T) {
 			name:      "Empty URL",
 			url:       "",
 			alias:     "some_alias",
-			respError: "field URL is a required field",
+			respError: "field URL is required",
 		},
 		{
 			name:      "Invalid URL",
@@ -56,7 +56,7 @@ func TestSaveHandler(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		tc := tc
+		tc := tc // excludes race condition troubles for parallel tests
 
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
@@ -74,10 +74,10 @@ func TestSaveHandler(t *testing.T) {
 			input := fmt.Sprintf(`{"url": "%s", "alias": "%s"}`, tc.url, tc.alias)
 
 			req, err := http.NewRequest(http.MethodPost, "/save", bytes.NewReader([]byte(input)))
-			require.NoError(t, err)
+			require.NoError(t, err) // could be assert.NoError() which goes on the test
 
-			rr := httptest.NewRecorder()
-			handler.ServeHTTP(rr, req)
+			rr := httptest.NewRecorder() // http response recorder
+			handler.ServeHTTP(rr, req)   // get the response
 
 			require.Equal(t, rr.Code, http.StatusOK)
 
@@ -89,7 +89,7 @@ func TestSaveHandler(t *testing.T) {
 
 			require.Equal(t, tc.respError, resp.Error)
 
-			// TODO: add more checks
+			// TODO: add more checks: status, alias.. other body fields
 		})
 	}
 }

@@ -6,7 +6,9 @@ import (
 	"github.com/go-chi/render"
 	"github.com/go-playground/validator/v10"
 	"golang.org/x/exp/slog"
+	"io"
 	"net/http"
+
 	resp "petProject/internal/lib/api/response"
 	"petProject/internal/lib/logger/sl"
 	"petProject/internal/lib/random"
@@ -27,15 +29,16 @@ type Response struct {
 // TODO: move to config if needed
 const aliasLength = 6
 
-//go:generate go run github.com/vektra/mockery/v2@v2.32.0 --name=URLSaver
+//go:generate go run github.com/vektra/mockery/v2@v2.28.2 --name=URLSaver
 
 type URLSaver interface {
-	Save(urlToSave string, alias string) (int64, error)
+	SaveURL(urlToSave string, alias string) (int64, error)
 }
 
 func New(log *slog.Logger, urlSaver URLSaver) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		const op = "save.New"
+		const op = "handlers.url.save.New"
+
 		log = log.With(
 			slog.String("op", op),
 			slog.String("request_id", middleware.GetReqID(r.Context())),
@@ -44,7 +47,13 @@ func New(log *slog.Logger, urlSaver URLSaver) http.HandlerFunc {
 		var req Request
 
 		err := render.DecodeJSON(r.Body, &req)
+		if errors.Is(err, io.EOF) {
+			log.Error("request body is empty")
 
+			render.JSON(w, r, resp.Error("empty request"))
+
+			return
+		}
 		if err != nil {
 			log.Error("failed to decode request body", sl.Err(err))
 
@@ -72,7 +81,7 @@ func New(log *slog.Logger, urlSaver URLSaver) http.HandlerFunc {
 
 		// TODO: alias exist check
 
-		id, err := urlSaver.Save(req.URL, alias)
+		id, err := urlSaver.SaveURL(req.URL, alias)
 		if errors.Is(err, storage.ErrURLExists) {
 			log.Info("url already exists", slog.String("url", req.URL))
 
@@ -82,14 +91,14 @@ func New(log *slog.Logger, urlSaver URLSaver) http.HandlerFunc {
 		}
 
 		if err != nil {
-			log.Error("failed to save url", sl.Err(err))
+			log.Error("failed to add url", sl.Err(err))
 
-			render.JSON(w, r, resp.Error("failed to save url"))
+			render.JSON(w, r, resp.Error("failed to add url"))
 
 			return
 		}
 
-		log.Info("url saved", slog.Int64("id", id))
+		log.Info("url added", slog.Int64("id", id))
 
 		responseOK(w, r, alias)
 	}
