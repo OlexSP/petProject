@@ -17,6 +17,7 @@ import (
 // URLGetter is an interface for getting url by alias.
 //
 //go:generate go run github.com/vektra/mockery/v2@v2.28.2 --name=URLGetter
+
 type URLGetter interface {
 	GetURL(alias string) (string, error)
 }
@@ -31,13 +32,6 @@ func New(log *slog.Logger, urlGetter URLGetter) http.HandlerFunc {
 		)
 
 		alias := chi.URLParam(r, "alias")
-		if alias == "" {
-			log.Info("alias is empty")
-
-			render.JSON(w, r, resp.Error("invalid request"))
-
-			return
-		}
 
 		resURL, err := urlGetter.GetURL(alias)
 		if errors.Is(err, storage.ErrURLNotFound) {

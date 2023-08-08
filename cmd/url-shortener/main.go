@@ -8,6 +8,7 @@ import (
 	"os"
 	"petProject/internal/config"
 	"petProject/internal/http-server/handlers/redirect"
+	"petProject/internal/http-server/handlers/url/delete"
 	"petProject/internal/http-server/handlers/url/save"
 	mwLogger "petProject/internal/http-server/middleware/logger"
 	"petProject/internal/lib/logger/handlers/slogpretty"
@@ -53,6 +54,7 @@ func main() {
 	router.Use(middleware.URLFormat)
 
 	router.Post("/url/save", save.New(log, storage))
+	router.Delete("/url/delete/{alias}", delete.New(log, storage))
 	router.Get("/{alias}", redirect.New(log, storage))
 
 	log.Info("starting server", slog.String("address", cfg.Address))

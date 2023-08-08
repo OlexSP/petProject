@@ -15,7 +15,6 @@ import (
 	"petProject/internal/storage"
 )
 
-// Request & Response JTOs
 type Request struct {
 	URL   string `json:"url" validate:"required,url"`
 	Alias string `json:"alias,omitempty"`
@@ -30,7 +29,6 @@ type Response struct {
 const aliasLength = 6
 
 //go:generate go run github.com/vektra/mockery/v2@v2.28.2 --name=URLSaver
-
 type URLSaver interface {
 	SaveURL(urlToSave string, alias string) (int64, error)
 }
@@ -89,7 +87,6 @@ func New(log *slog.Logger, urlSaver URLSaver) http.HandlerFunc {
 
 			return
 		}
-
 		if err != nil {
 			log.Error("failed to add url", sl.Err(err))
 
