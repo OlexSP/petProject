@@ -13,7 +13,7 @@ var (
 // GetRedirect returns the final URL after redirection.
 func GetRedirect(url string) (string, error) {
 	const op = "api.GetRedirect"
-
+	// do not use redirects during tests
 	client := &http.Client{
 		CheckRedirect: func(req *http.Request, via []*http.Request) error {
 			return http.ErrUseLastResponse // stop after 1st redirect

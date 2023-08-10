@@ -48,7 +48,7 @@ func TestSaveHandler(t *testing.T) {
 			require.NoError(t, err)
 
 			// Check the final URL after redirection.
-			assert.Equal(t, tc.url, redirectedToURL)
+			assert.Equal(t, tc.url, redirectedToURL) // or require.Equal(t, tc.url, redirectedToURL)
 		})
 	}
 }
