@@ -38,7 +38,6 @@ func TestURLShortener_HappyPath(t *testing.T) {
 		ContainsKey("alias")
 }
 
-//nolint:funlen
 func TestURLShortener_SaveRedirectDelete(t *testing.T) {
 	testCases := []struct {
 		name  string
@@ -62,7 +61,6 @@ func TestURLShortener_SaveRedirectDelete(t *testing.T) {
 			url:   gofakeit.URL(),
 			alias: "",
 		},
-		// TODO: add more test cases
 	}
 
 	for _, tc := range testCases {
@@ -109,7 +107,7 @@ func TestURLShortener_SaveRedirectDelete(t *testing.T) {
 
 			// Delete
 
-			reqDel := e.DELETE("/"+path.Join("url/delete"), alias).
+			reqDel := e.DELETE("/"+path.Join("url/delete", alias)).
 				WithBasicAuth("user", "password").
 				Expect().Status(http.StatusOK).
 				JSON().Object()
@@ -143,8 +141,8 @@ func testRedirectNotFound(t *testing.T, alias string) {
 		Path:   alias,
 	}
 
-	_, err := api.GetRedirect(u.String())
+	redirectedToURL, err := api.GetRedirect(u.String())
 	require.Error(t, err)
 
-	require.Equal(t, http.StatusNotFound, err.(*url.Error).Err)
+	require.Equal(t, redirectedToURL, "")
 }
