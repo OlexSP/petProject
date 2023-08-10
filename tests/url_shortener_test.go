@@ -144,5 +144,5 @@ func testRedirectNotFound(t *testing.T, alias string) {
 	redirectedToURL, err := api.GetRedirect(u.String())
 	require.Error(t, err)
 
-	require.Equal(t, redirectedToURL, "")
+	require.Equal(t, "", redirectedToURL)
 }
